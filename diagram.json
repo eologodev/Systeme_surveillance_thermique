@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "author" :"elvire ologoudou",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-devkit-v1", "id": "esp32", "top": 0, "left": 0 },
+    { "type": "wokwi-led", "id": "led1", "top": -60, "left": 100, "attrs": { "color": "red" } },
+    { "type": "wokwi-pushbutton", "id": "btn1", "top": 100, "left": 100, "attrs": { "color": "green", "label": "PRESENCE" } }
+  ],
+  "connections": [
+    [ "esp32:GND.1", "led1:K", "black", [ "v0" ] ],
+    [ "esp32:D13", "led1:A", "red", [ "v0" ] ],
+    [ "esp32:GND.1", "btn1:2.L", "black", [ "v0" ] ],
+    [ "esp32:D4", "btn1:1.R", "green", [ "v0" ] ]
+  ],
+  "serial": { "port": "uart0", "baud": 115200 }
+}
