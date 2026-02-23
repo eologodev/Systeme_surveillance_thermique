@@ -1,75 +1,72 @@
 #include <Arduino.h>
-extern "C"{
-  #include "buffer.h"
-#include "sensor.h"
-#include "ventilation.h"
 
+// Inclusion sécurisée des fichiers C
+extern "C" {
+  #include "buffer.h"
+  
 }
 
-// put function declarations here:
-//int myFunction(int, int);
-Buffer *buffer;
-Sensor capteur;
-unsigned long dernierUpdate = 0;
-bool presence =false;
+#include "ventilation.h"
+#include "sensor.h"
+
+Buffer* buffer ;
 
 void setup() {
-  // put your setup code here, to run once:
- // int result = myFunction(2, 3);
+  // 1. Initialisation du port série (Vitesse 115200)
+  Serial.begin(115200);
+  
+  // Petite pause pour laisser le temps au moniteur de se connecter
+  delay(1000); 
+  
+  pinMode(14, INPUT_PULLUP);
 
- Serial.begin(115200);
- delay(2000);
-  size_t size =10;
-  buffer= create_buffer(size);
-  capteur.lire = acquire_sensor_data ;
+  // 2. Initialisation du Buffer
+  Serial.print("Initialisation du buffer... ");
+  size_t taille_buffer = 10;
+  buffer = create_buffer(taille_buffer);
+  
+  if (buffer == NULL) {
+    Serial.println("ECHEC ! (Erreur memoire)");
+    while(1); 
+  }
+  
+  Serial.print("Initialisation du capteur DHT... ");
+  init_sensor();
+  Serial.println("OK.");
+
+  
+  Serial.print("Initialisation ventilation... ");
   init_ventilation();
-  Serial.println("Demarrage de la simulation");
+  Serial.println("OK.");
 
-
-
+  Serial.println("--- SYSTEME PRET ---");
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  Serial.println("--- Tick ---"); // Message simple pour tester
-    Serial.flush(); // Force l'envoi vers le terminal
-  if (millis() -dernierUpdate >=1000){
-   
-    dernierUpdate = millis();
+  Serial.println("\n--- Nouvelle lecture ---");
+  
+  // Lecture des données
+  float temp = acquire_sensor_data();
+  if(temp <100.0 ){
+ if( buffer_add(buffer , temp)){
+  Serial.println(buffer->cpt);
+  float moy = moy_buffer(buffer);
+  float var = calcul_variation(buffer);
 
-    long secondes = millis() / 1000;
-    
-    
-    if ((secondes / 10) % 2 == 0) {
-      presence = true;
-    } else {
-      presence = false;
-    }
+  Serial.print("var"); Serial.println(var);
+  Serial.print("moy") ;Serial.println(moy);
+
+ 
+  // Affichage pour vérifier
+  Serial.print("Temp: "); Serial.print(temp); 
 
   
 
-  float temperature = capteur.lire();
-  if(temperature > 80){
-      Serial.print("->Alerte Parasite :"); Serial.println(temperature);
 
-    }else{
-       if(buffer_add(buffer , temperature)){
-      float moy = moy_buffer(buffer);
-      float variation = calcul_variation(buffer);
-
-      manage_ventilation(moy , variation , presence);
-      Serial.print("Température |") ; Serial.println(temperature);
-      Serial.print("Lissage |") ; Serial.println(variation);
-      Serial.print("Variation de la température |") ; Serial.println(variation);
-      
-     }
-
-    }
- 
-
+  manage_ventilation(moy, var);
+ }
+} else{
+  Serial.println("parasite détecter");
 }
+  delay(2000); // Attendre 2 secondes avant la prochaine boucle
 }
-// put function definitions here:
-/*int myFunction(int x, int y) {
-  return x + y;
-}*/

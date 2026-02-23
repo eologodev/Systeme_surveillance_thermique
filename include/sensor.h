@@ -1,22 +1,27 @@
+
 #ifndef _SENSOR_H
 #define _SENSOR_H
+#include <Arduino.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
 /**
- * @ sensor simule la lecture d'un capteur réel
- * @ return une valeur float aléatoire
- * Renvoie occasionnelement des parasite
+ * initialise et Retourne la température lue via le capture(GPIO , BIBLIOTHEQUE DHT)
  * 
  */
-typedef struct 
-{
-    char *nom;
-    float (* lire)();
 
-} Sensor;
- 
+ //
+ void init_sensor();
 
  float acquire_sensor_data();
+
+#ifdef __cplusplus
+  }
+#endif
+
 
  #endif

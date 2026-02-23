@@ -46,16 +46,16 @@ bool buffer_add(Buffer * buffer , float temperature){
 }
 
 float moy_buffer(Buffer *buffer){
-
-    int i ;
+  
+   
     float somme =0.0;
     if (buffer->cpt==0) return 0;
-    for (i =0 ; i <(int) buffer->cpt ; i++){
+    for (int i =0 ; i < buffer->cpt ; i++){
         
         somme = somme + buffer->tab[i];
 
     }
-    float moy = somme /(int)buffer->cpt;
+    float moy = somme /buffer->cpt;
     return moy;
 }
 
